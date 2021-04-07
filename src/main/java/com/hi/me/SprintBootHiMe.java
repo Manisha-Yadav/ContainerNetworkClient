@@ -18,10 +18,9 @@ public class SprintBootHiMe {
     @ResponseBody
     String home(@RequestParam String hostname) {
         RestTemplate restTemplate = new RestTemplate();
-        //UriComponents uri = UriComponentsBuilder.fromPath("http://localhost:" + port + "/print").build();
         String url = "http://" + hostname + "/print";
         String response = restTemplate.getForObject(url,String.class);
-        return response + " from " + url;
+        return response + " FROM " + url;
     }
 
     @RequestMapping("/")
