@@ -17,14 +17,10 @@ public class SprintBootHiMe {
     @GetMapping("/client")
     @ResponseBody
     String home(@RequestParam String hostname) {
-        /*
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://" + hostname + "/print";
         String response = restTemplate.getForObject(url,String.class);
         return response + " FROM " + url;
-
-         */
-        return "Response for pipeline " + hostname;
     }
 
     @RequestMapping("/")
