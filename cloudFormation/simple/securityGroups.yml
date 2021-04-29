@@ -1,0 +1,47 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Template for an SSH and HTTP Security Group
+
+Parameters:
+  SecurityGroupSSHIP:
+    Description: Input IP address to allow SSH
+    Type: String
+
+Resources:
+  MySshSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SSH security group
+      GroupName: SSHSecurityGroup
+      SecurityGroupIngress:
+        - CidrIp: !Ref SecurityGroupSSHIP
+          Description: SSH from my machine
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+
+  MyHttpSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTP security group
+      GroupName: HttpSecurityGroup
+      SecurityGroupIngress:
+        - CidrIp: !Ref SecurityGroupSSHIP
+          Description: HTTP from my machine
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+
+Outputs:
+  MySshSecurityGroupStack:
+    Description: Exporting SSH SG
+    Value: !Ref MySshSecurityGroup
+    Export:
+      Name: SshSg
+
+  MyHttpSecurityGroupStack:
+    Description: Exporting HTTP SG
+    Value: !Ref MyHttpSecurityGroup
+    Export:
+      Name: HttpSg

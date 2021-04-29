@@ -1,0 +1,31 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Template for creating Security Groups
+
+Resources:
+  MyASGSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: This is ASG security group
+      GroupName: ASGSecurityGroup
+      SecurityGroupIngress:
+        - SourceSecurityGroupName: !Ref MyLBSecurityGroup
+          Description: ASG accessed from LB
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+  MyLBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: This is LB security group
+      GroupName: LBSecurityGroup
+Outputs:
+  ASGSG:
+    Description: Security Group for ASG
+    Value: !Ref MyASGSecurityGroup
+  LBSG:
+    Description: Security Group for LB
+    Value: !Ref MyLBSecurityGroup
+    Export:
+      Name: MyLBSecG

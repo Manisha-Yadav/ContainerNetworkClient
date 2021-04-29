@@ -1,0 +1,47 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  AMI:
+    Description: Input AMI id
+    Type: String
+  VPC:
+    Description: Input VPC Id
+    Type: String
+
+Resources:
+  myLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: MajhaLoadBalancer
+      SecurityGroups:
+        - Fn::ImportValue MyLBSecG
+  myLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref myTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref myLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  myTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: myTargetGroup
+      Port: 80
+      Protocol: HTTP
+      VpcId : !Ref VPC
+  myLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: t2.micro
+  myASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      MaxSize: '2'
+      MinSize: '1'
+      LaunchConfigurationName: !Ref myLaunchConfig
+      TargetGroupARNs:
+        - !Ref myTargetGroup

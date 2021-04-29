@@ -1,0 +1,68 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Template for an EC2 instance
+
+Parameters:
+  Payment:
+    Description: Free or Paid
+    Type: String
+    Default: Free
+    AllowedValues:
+      - Free
+      - Paid
+    ConstraintDescription: must be a Free or Paid
+  KeyNameForEC2Instance:
+    Description: Key Name for EC2 Instance creation
+    Type: String
+  Message:
+    Description: Message to be displayed on screen
+    Type: String
+  ApplicationType:
+    Description: Type of application deployed
+    Type: String
+    Default: Simple Apache Tomcat
+    AllowedValues:
+      - Simple Apache Tomcat
+      - Spring Boot
+    ConstraintDescription: must be either Simple Apache Tomcat or Spring Boot
+
+Mappings:
+  PaymentToInstanceType:
+    Free:
+      InstanceType: t2.micro
+    Paid:
+      InstanceType: m1.small
+
+Conditions:
+  CreateSimpleTomcat: !Equals
+    - !Ref ApplicationType
+    - Simple Apache Tomcat
+
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-2a
+      ImageId: ami-05d72852800cbf29e
+      InstanceType: !FindInMap [PaymentToInstanceType, !Ref Payment, InstanceType]
+      KeyName: !Ref KeyNameForEC2Instance
+      SecurityGroups:
+        - !ImportValue SshSg
+        - !ImportValue HttpSg
+      UserData:
+        !If
+        - CreateSimpleTomcat
+        - Fn::Base64: !Sub
+            - |
+              #!/bin/bash
+              # install httpd (Linux 2 version)
+              yum update -y
+              yum install -y httpd.x86_64
+              systemctl start httpd.service
+              systemctl enable httpd.service
+              echo ${InsertMessageHere}> /var/www/html/index.html
+            - {
+                InsertMessageHere: !Ref Message
+              }
+        - !Ref "AWS::NoValue"
